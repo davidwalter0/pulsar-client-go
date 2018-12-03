@@ -339,3 +339,86 @@ func (m *ManagedConsumer) manage() {
 		m.set(consumer)
 	}
 }
+
+// RedeliverUnacknowledged requests redeliver_unacknowledged_messages request
+// for all messages that have not been acked.
+func (m *ManagedConsumer) RedeliverUnacknowledged(ctx context.Context) error {
+	for {
+		m.mu.RLock()
+		consumer := m.consumer
+		wait := m.waitc
+		m.mu.RUnlock()
+
+		if consumer == nil {
+			select {
+			case <-wait:
+				// a new consumer was established.
+				// Re-enter read-lock to obtain it.
+				continue
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+
+		if err := consumer.RedeliverUnacknowledged(ctx); err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+// RedeliverOverflow sends of redeliver_unacknowledged_messages request
+// for all messages that were dropped because of full message buffer. Note that
+// for all subscription types other than `shared`, _all_ unacknowledged messages
+// will be redelivered.
+// https://github.com/apache/incubator-pulsar/issues/2003
+func (m *ManagedConsumer) RedeliverOverflow(ctx context.Context) (int, error) {
+	for {
+		m.mu.RLock()
+		consumer := m.consumer
+		wait := m.waitc
+		m.mu.RUnlock()
+
+		if consumer == nil {
+			select {
+			case <-wait:
+				// a new consumer was established.
+				// Re-enter read-lock to obtain it.
+				continue
+			case <-ctx.Done():
+				return -1, ctx.Err()
+			}
+		}
+		var i int
+		var err error
+		if i, err = consumer.RedeliverOverflow(ctx); err != nil {
+			return -1, err
+		}
+		return i, nil
+	}
+}
+
+// Unsubscribe from topic for reacquisition of shared queue
+func (m *ManagedConsumer) Unsubscribe(ctx context.Context) error {
+	for {
+		m.mu.RLock()
+		consumer := m.consumer
+		wait := m.waitc
+		m.mu.RUnlock()
+
+		if consumer == nil {
+			select {
+			case <-wait:
+				// a new consumer was established.
+				// Re-enter read-lock to obtain it.
+				continue
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		}
+		if err := consumer.Unsubscribe(ctx); err != nil {
+			return err
+		}
+		return nil
+	}
+}
