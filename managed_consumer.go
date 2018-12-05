@@ -340,7 +340,7 @@ func (m *ManagedConsumer) manage() {
 	}
 }
 
-// RedeliverUnacknowledged requests redeliver_unacknowledged_messages request
+// RedeliverUnacknowledged sends of REDELIVER_UNACKNOWLEDGED_MESSAGES request
 // for all messages that have not been acked.
 func (m *ManagedConsumer) RedeliverUnacknowledged(ctx context.Context) error {
 	for {
@@ -367,7 +367,7 @@ func (m *ManagedConsumer) RedeliverUnacknowledged(ctx context.Context) error {
 	}
 }
 
-// RedeliverOverflow sends of redeliver_unacknowledged_messages request
+// RedeliverOverflow sends of REDELIVER_UNACKNOWLEDGED_MESSAGES request
 // for all messages that were dropped because of full message buffer. Note that
 // for all subscription types other than `shared`, _all_ unacknowledged messages
 // will be redelivered.
@@ -398,7 +398,7 @@ func (m *ManagedConsumer) RedeliverOverflow(ctx context.Context) (int, error) {
 	}
 }
 
-// Unsubscribe from topic for reacquisition of shared queue
+// Unsubscribe the consumer from its topic.
 func (m *ManagedConsumer) Unsubscribe(ctx context.Context) error {
 	for {
 		m.mu.RLock()
