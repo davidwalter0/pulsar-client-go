@@ -359,11 +359,7 @@ func (m *ManagedConsumer) RedeliverUnacknowledged(ctx context.Context) error {
 				return ctx.Err()
 			}
 		}
-
-		if err := consumer.RedeliverUnacknowledged(ctx); err != nil {
-			return err
-		}
-		return nil
+		return consumer.RedeliverUnacknowledged(ctx)
 	}
 }
 
@@ -389,12 +385,7 @@ func (m *ManagedConsumer) RedeliverOverflow(ctx context.Context) (int, error) {
 				return -1, ctx.Err()
 			}
 		}
-		var i int
-		var err error
-		if i, err = consumer.RedeliverOverflow(ctx); err != nil {
-			return -1, err
-		}
-		return i, nil
+		return consumer.RedeliverOverflow(ctx)
 	}
 }
 
@@ -416,9 +407,6 @@ func (m *ManagedConsumer) Unsubscribe(ctx context.Context) error {
 				return ctx.Err()
 			}
 		}
-		if err := consumer.Unsubscribe(ctx); err != nil {
-			return err
-		}
-		return nil
+		consumer.Unsubscribe(ctx)
 	}
 }
